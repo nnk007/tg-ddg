@@ -1,0 +1,21 @@
+{
+  "name": "tg-ddg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no tests\" && exit 1",
+    "dev": "npx tsc && node ./out/index.js",
+    "build": "npx tsc",
+    "start": "node ./out/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.10"
+  },
+  "dependencies": {
+    "puppeteer": "^22.8.0"
+  }
+}
