@@ -1,7 +1,9 @@
 import https from "https";
 import events from "events";
+import 'dotenv/config';
 import { DDG } from "./ddg";
-if(!process.env.TOKEN) throw "TOKEN not set";
+import crypto from "node:crypto";
+if (!process.env.TOKEN) throw "TOKEN not set";
 const ddg = new DDG();
 class TG {
     static token: string = process.env.TOKEN;
@@ -15,6 +17,9 @@ class TG {
                 res.on("end", () => {
                     resolve(JSON.parse(b.toString()));
                 });
+            })
+            req.on("error", err => {
+                reject(err);
             })
         })
     }
@@ -33,12 +38,15 @@ class TG {
                 res.on("end", () => {
                     resolve(JSON.parse(b.toString()));
                 })
+                req.on("error", err => {
+                    reject(err);
+                })
             })
         })
     }
     static async request(method: string, body?: any): Promise<TgBotAPI.Response<any>> {
         const response = !body ? TG.req_get(method) : TG.req_post(method, body);
-        if(!(await response).ok) throw `${(await response).description}`;
+        if (!(await response).ok) throw `${(await response).description}`;
         return response;
     }
 }
@@ -49,8 +57,12 @@ interface GetUpdatesArgs {
     allowed_updates?: string[]
 }
 async function getUpdates(args?: GetUpdatesArgs): Promise<TgBotAPI.Update[]> {
-    const _updates = await TG.request("getUpdates", { ...args, timeout: 60, allowed_updates: ["inline_query"] } as GetUpdatesArgs);
-    return _updates.result;
+    try {
+        const _updates = await TG.request("getUpdates", { ...args, timeout: 60, allowed_updates: ["inline_query"] } as GetUpdatesArgs);
+        return _updates.result;
+    } catch (err) {
+        return [];
+    }
 }
 interface InputTextMessageContent {
     message_text: string,
@@ -77,7 +89,13 @@ interface AnswerInlineQueryArgs {
     next_offset?: string | ""
 }
 async function answerInlineQuery(args: AnswerInlineQueryArgs) {
-    TG.req_post("answerInlineQuery", { ...args, next_offset: "" } as AnswerInlineQueryArgs)
+    try {
+        const res = await TG.req_post("answerInlineQuery", { ...args, next_offset: "" } as AnswerInlineQueryArgs);
+        if(!res.ok) throw res.description; 
+        console.log("Sent inline answer");
+    } catch (err) {
+        console.error("Failed sending inline answer\n",err);
+    }
 }
 
 async function handleInlineQuery(query: TgBotAPI.InlineQuery) {
