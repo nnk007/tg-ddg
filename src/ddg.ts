@@ -12,7 +12,7 @@ export class DDG {
     browser: Browser|undefined;
     constructor() {
         this.browser = undefined;
-        this._browser = puppeteer.launch({ headless: false })
+        this._browser = puppeteer.launch({ headless: true })
         this._browser.then(browser=>{
             this.browser = browser;
         })
