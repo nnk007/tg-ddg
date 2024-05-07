@@ -107,7 +107,10 @@ async function handleInlineQuery(query: TgBotAPI.InlineQuery) {
     if (urls.length == 0) return answerInlineQuery({ cache_time: 300, results: [{ id: Date.now().toString(), title: "Nothing found", type: "article", input_message_content: { message_text: "" } }], inline_query_id: query.id });
     return answerInlineQuery({
         cache_time: 300, inline_query_id: query.id, results: urls.map(o => {
-            return { id: o.url, type: "article", title: o.title, description: o.description, url: o.url, input_message_content: { message_text: `<a href="${o.url}">${o.title}</a>`, parse_mode: "HTML" } }
+            let hash = crypto.createHash("sha1");
+            hash.update(o.url);
+            const id = hash.digest("hex");
+            return { id: id, type: "article", title: o.title, description: o.description, url: o.url, input_message_content: { message_text: `<a href="${o.url}">${o.title}</a>`, parse_mode: "HTML" } }
         })
     });
 }

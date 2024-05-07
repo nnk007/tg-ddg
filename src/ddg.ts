@@ -1,4 +1,3 @@
-import EventEmitter from "events";
 import puppeteer, { Browser } from "puppeteer";
 
 // https://duckduckgo.com/?q=!ud%20dog&format=json&pretty=1&no_html=1&no_redirect=1
@@ -55,7 +54,13 @@ export class DDG {
                     const links = await Promise.all(entries.map(async (v) => {
                         const link = await (await v.$("h2 a"))!.evaluate(a => a.href);
                         const title = await (await v.$("h2 span"))!.evaluate(span => span.textContent);
-                        const description = await (await v.$("[data-result]>span>span"))!.evaluate(span => span.textContent);
+                        let description:string;
+                        try{
+                        const _ = await (await v.$("[data-result]>span>span"))!.evaluate(span => span.textContent);
+                        description = _ ? _ : "";
+                        } catch(err){
+                            description = "";
+                        }
                         return {
                             url: link,
                             title: title,
