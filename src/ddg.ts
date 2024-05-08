@@ -9,30 +9,30 @@ interface DDGSearchResult {
 }
 export class DDG {
     _browser: Promise<Browser>;
-    browser: Browser|undefined;
+    browser: Browser | undefined;
     constructor() {
         this.browser = undefined;
         this._browser = puppeteer.launch({ headless: true })
-        this._browser.then(browser=>{
+        this._browser.then(browser => {
             this.browser = browser;
         })
     }
-    ready():Promise<boolean>{
-        return new Promise(async (resolve)=>{
+    ready(): Promise<boolean> {
+        return new Promise(async (resolve) => {
             await this._browser;
             resolve(true);
         })
     }
     query(qs: string): Promise<DDGSearchResult[]> {
         return new Promise(async (resolve_, reject) => {
-            if(!this.browser) throw "Browser not ready";
+            if (!this.browser) throw "Browser not ready";
             const page = await this.browser.newPage();
             async function resolve(v: any) {
                 await page.close()
                 resolve_(v);
             }
-            await page.goto(`https://duckduckgo.com/?q=${encodeURIComponent(qs)}`, { waitUntil: "networkidle0" });
             try {
+                await page.goto(`https://duckduckgo.com/?q=${encodeURIComponent(qs)}`, { waitUntil: "networkidle2" });
                 console.log(page.url());
                 if ((new URL(page.url())).hostname != "duckduckgo.com") {
                     const title = await page.title();
@@ -54,11 +54,11 @@ export class DDG {
                     const links = await Promise.all(entries.map(async (v) => {
                         const link = await (await v.$("h2 a"))!.evaluate(a => a.href);
                         const title = await (await v.$("h2 span"))!.evaluate(span => span.textContent);
-                        let description:string;
-                        try{
-                        const _ = await (await v.$("[data-result]>span>span"))!.evaluate(span => span.textContent);
-                        description = _ ? _ : "";
-                        } catch(err){
+                        let description: string;
+                        try {
+                            const _ = await (await v.$("[data-result]>span>span"))!.evaluate(span => span.textContent);
+                            description = _ ? _ : "";
+                        } catch (err) {
                             description = "";
                         }
                         return {
