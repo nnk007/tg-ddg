@@ -5,4 +5,4 @@ WORKDIR /bot
 COPY . .
 RUN npm i
 RUN npm run build
-RUN npm run start
+CMD npm run start

@@ -1,3 +1,4 @@
 node_modules
 out
 README.md
+docker-compose.yaml
